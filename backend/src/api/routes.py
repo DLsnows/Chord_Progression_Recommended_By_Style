@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 
+from ..config import TOP_K, TOP_K_FIRST
 from .schemas import (
     ChordCandidate,
     ChordDetail,
@@ -23,6 +24,8 @@ from .schemas import (
     StyleSearchRequest,
     StyleSearchResponse,
     UndoChordResponse,
+    UpdateMusicalityRequest,
+    UpdateMusicalityResponse,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -86,13 +89,58 @@ def list_styles(request: Request) -> dict[str, Any]:
 # Chord detail
 # ---------------------------------------------------------------------------
 
+def _normalize_chord_name(name: str, chord_map: dict) -> str | None:
+    """Try to match a user-supplied chord name against the chord map.
+    Attempts exact match, flat→sharp conversion, and common aliases.
+    Returns the canonical name or None."""
+    # Exact match
+    if name in chord_map:
+        return name
+
+    # Flat → sharp conversion (Db→Cs, Eb→Ds, Gb→Fs, Ab→Gs, Bb→As)
+    flat_map = {"Db": "Cs", "Eb": "Ds", "Gb": "Fs", "Ab": "Gs", "Bb": "As",
+                "db": "Cs", "eb": "Ds", "gb": "Fs", "ab": "Gs", "bb": "As"}
+    for flat_prefix, sharp_prefix in flat_map.items():
+        if name.startswith(flat_prefix):
+            candidate = sharp_prefix + name[len(flat_prefix):]
+            if candidate in chord_map:
+                return candidate
+            break
+
+    # Common quality aliases (try replacing suffix)
+    alias_map = {"m7": "min7", "m9": "min9", "m11": "min11", "m13": "min13",
+                 "M7": "maj7", "M9": "maj9", "M11": "maj11", "M13": "maj13",
+                 "m": "min", "M": "maj"}
+    for alias, canonical in alias_map.items():
+        if name.endswith(alias):
+            candidate = name[:-len(alias)] + canonical
+            if candidate in chord_map:
+                return candidate
+
+    return None
+
+
 @router.get("/chords/{name}", response_model=ChordDetail)
 def get_chord(name: str, request: Request) -> dict[str, Any]:
     chord_map = _get_chord_map(request)
-    info = chord_map.get(name)
-    if info is None:
-        raise HTTPException(status_code=404, detail=f"Chord not found: {name}")
+    chord_vocab = _get_chord_vocab(request)
+
+    canonical = _normalize_chord_name(name, chord_map)
+    if canonical is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Chord not found: {name}. Use format: Root+Quality (e.g., Cmaj7, Amin, G7, Ddim7). Use sharps not flats.",
+        )
+
+    info = chord_map[canonical]
+    # Find chord_idx from the sorted vocabulary
+    try:
+        chord_idx = chord_vocab.index(canonical)
+    except ValueError:
+        chord_idx = -1
+
     return {
+        "chord_idx": chord_idx,
         "name": info.name,
         "root_pc": info.root_pc,
         "root_name": info.root_name,
@@ -122,12 +170,14 @@ def create_session(body: CreateSessionRequest, request: Request) -> dict[str, An
     if style_group is None:
         raise HTTPException(status_code=404, detail=f"Style not found: {body.style_key}")
 
-    session = sessions.create_session(style_group)
+    session = sessions.create_session(style_group, musicality=body.musicality)
 
-    # Cold-start recommendations
+    # Cold-start recommendations — use larger pool for first pick
     active_branch = _get_active_branch(session)
     selected_indices = [s["chord_idx"] for s in active_branch.get("chords", [])]
-    candidates = recommender.recommend(style_group, selected_indices)
+    candidates = recommender.recommend(
+        style_group, selected_indices, top_k=TOP_K_FIRST, musicality=body.musicality
+    )
 
     return {
         "session": _build_session_state(session),
@@ -230,21 +280,39 @@ def select_chord(
 
     # Get current selected indices
     selected_indices = [s["chord_idx"] for s in active_branch["chords"]]
+    musicality = session.get("musicality", 0.0)
 
-    # Generate this round's candidates (same as what will be shown)
-    current_candidates = recommender.recommend(style_group, selected_indices)
+    # Generate this round's candidates (same as what was shown to user)
+    top_k_current = TOP_K_FIRST if not selected_indices else TOP_K
+    current_candidates = recommender.recommend(style_group, selected_indices, top_k=top_k_current, musicality=musicality)
 
     # Record the selection (use JSON-safe built candidates for storage)
     session["style_starting_probs"] = style_group.get("starting_probs", {})
     built_candidates = _build_candidates(current_candidates, chord_map)
     serializable_candidates = [c.model_dump() for c in built_candidates]
+
+    # Ensure the selected chord is in the stored candidates so SequenceDisplay
+    # can look up midi_notes for piano roll rendering and playback.
+    if not any(c["chord_idx"] == body.chord_idx for c in serializable_candidates):
+        info = chord_map.get(body.chord_name)
+        if info is not None:
+            serializable_candidates.append({
+                "chord_idx": body.chord_idx,
+                "chord_name": body.chord_name,
+                "score": 0,
+                "root_pc": info.root_pc,
+                "quality": info.quality,
+                "semitone_intervals": info.semitone_intervals,
+                "midi_notes": info.to_midi_notes(3 if info.root_pc >= 7 else 4),
+                "binary_vector": info.binary_vector,
+            })
     result = sessions.select_chord(
         session_id, branch_id, body.chord_idx, body.chord_name, serializable_candidates
     )
 
     # Generate next round's candidates
     next_indices = selected_indices + [body.chord_idx]
-    next_candidates = recommender.recommend(style_group, next_indices)
+    next_candidates = recommender.recommend(style_group, next_indices, musicality=musicality)
 
     return {
         "position": int(result["position"]),
@@ -282,9 +350,11 @@ def undo_chord(session_id: str, request: Request) -> dict[str, Any]:
 
     # Refresh session after undo
     session = sessions.get_session(session_id)
+    musicality = session.get("musicality", 0.0)
     active_branch = _find_branch(session, branch_id)
     selected_indices = [s["chord_idx"] for s in active_branch["chords"]] if active_branch else []
-    candidates = recommender.recommend(style_group, selected_indices)
+    top_k = TOP_K_FIRST if not selected_indices else TOP_K
+    candidates = recommender.recommend(style_group, selected_indices, top_k=top_k, musicality=musicality)
 
     undone_resp = None
     if undone:
@@ -399,6 +469,34 @@ def delete_branch(session_id: str, branch_id: str, request: Request) -> dict[str
 
 
 # ---------------------------------------------------------------------------
+# Musicality
+# ---------------------------------------------------------------------------
+
+@router.patch(
+    "/sessions/{session_id}/musicality",
+    response_model=UpdateMusicalityResponse,
+)
+def update_musicality(
+    session_id: str, body: UpdateMusicalityRequest, request: Request
+) -> dict[str, Any]:
+    sessions = _get_sessions(request)
+    recommender = _get_recommender(request)
+    matcher = _get_matcher(request)
+    chord_map = _get_chord_map(request)
+
+    try:
+        session = sessions.update_musicality(session_id, body.musicality)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")
+
+    candidates = _generate_candidates(session, matcher, recommender, chord_map)
+    return {
+        "session": _build_session_state(session),
+        "candidates": candidates,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -408,13 +506,15 @@ def _generate_candidates(
     """Generate chord candidates for the active branch of a session."""
     active = _get_active_branch(session)
     selected_indices = [s["chord_idx"] for s in (active.get("chords", []) if active else [])]
+    musicality = session.get("musicality", 0.0)
 
     style_key = f"{session['style_genre_tag']}|{session['style_decade']}|{session['style_section']}"
     style_group = matcher.style_index.get(style_key)
     if style_group is None:
         return []
 
-    raw = recommender.recommend(style_group, selected_indices)
+    top_k = TOP_K_FIRST if not selected_indices else TOP_K
+    raw = recommender.recommend(style_group, selected_indices, top_k=top_k, musicality=musicality)
     return _build_candidates(raw, chord_map)
 
 
@@ -436,6 +536,7 @@ def _build_session_state(session: dict) -> dict[str, Any]:
         "style_decade": session["style_decade"],
         "style_section": session["style_section"],
         "active_branch_id": session["active_branch_id"],
+        "musicality": session.get("musicality", 0.0),
         "branches": [
             {
                 "id": br["id"],
@@ -469,7 +570,7 @@ def _build_candidates(
             "root_pc": info.root_pc,
             "quality": info.quality,
             "semitone_intervals": info.semitone_intervals,
-            "midi_notes": info.to_midi_notes(4),
+            "midi_notes": info.to_midi_notes(3 if info.root_pc >= 7 else 4),
             "binary_vector": info.binary_vector,
         })
     return [ChordCandidate(**r) for r in result]

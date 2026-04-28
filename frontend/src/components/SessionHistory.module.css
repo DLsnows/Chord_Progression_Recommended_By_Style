@@ -11,25 +11,25 @@
 }
 
 .title {
-  color: #e94560;
+  color: #4ade80;
   margin: 0;
   font-size: 1.25rem;
 }
 
 .backBtn {
   padding: 6px 14px;
-  border: 1px solid #555;
+  border: 1px solid #444;
   border-radius: 4px;
   background: transparent;
-  color: #aaa;
+  color: #999;
   cursor: pointer;
   font-size: 0.85rem;
   transition: border-color 0.2s, color 0.2s;
 }
 
 .backBtn:hover {
-  border-color: #e94560;
-  color: #e94560;
+  border-color: #4ade80;
+  color: #4ade80;
 }
 
 .empty {
@@ -40,11 +40,11 @@
 }
 
 .error {
-  background: rgba(233, 69, 96, 0.15);
-  border: 1px solid #e94560;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid #ef4444;
   border-radius: 6px;
   padding: 10px 14px;
-  color: #e94560;
+  color: #ef4444;
   margin-bottom: 1rem;
 }
 
@@ -52,8 +52,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #1e2a3a;
-  border: 1px solid #2a3a4a;
+  background: #1c1c1c;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 14px 18px;
   margin-bottom: 10px;
@@ -61,7 +61,7 @@
 }
 
 .card:hover {
-  border-color: #3a4a5a;
+  border-color: #4ade80;
 }
 
 .cardBody {
@@ -103,8 +103,8 @@
   padding: 6px 16px;
   border: none;
   border-radius: 4px;
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -112,7 +112,7 @@
 }
 
 .resumeBtn:hover {
-  background: #c73650;
+  background: #22c55e;
 }
 
 .deleteBtn {
@@ -127,6 +127,6 @@
 }
 
 .deleteBtn:hover {
-  border-color: #e94560;
-  color: #e94560;
+  border-color: #ef4444;
+  color: #ef4444;
 }

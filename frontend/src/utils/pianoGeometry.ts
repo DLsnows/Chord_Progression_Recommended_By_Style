@@ -108,12 +108,12 @@ export function computePianoLayout(
 
 /** Active note highlight colors. */
 export const NOTE_COLORS = {
-  root: '#e94560',       // red/pink for root note
-  active: '#0f3460',     // dark blue for other chord tones
-  blackKeyDefault: '#1a1a2e',
-  blackKeyActive: '#e94560',
+  root: '#4ade80',
+  active: '#22c55e',
+  blackKeyDefault: '#0a0a0a',
+  blackKeyActive: '#4ade80',
   whiteKeyDefault: '#f0f0f0',
-  whiteKeyActive: '#0f3460',
-  whiteKeyRoot: '#e94560',
+  whiteKeyActive: '#22c55e',
+  whiteKeyRoot: '#4ade80',
   border: '#333',
 } as const;

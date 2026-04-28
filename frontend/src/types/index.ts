@@ -14,6 +14,7 @@ export interface ChordCandidate {
 }
 
 export interface ChordDetail {
+  chord_idx: number;
   name: string;
   root_pc: number;
   root_name: string;
@@ -78,6 +79,7 @@ export interface SessionState {
   style_decade: number;
   style_section: string;
   active_branch_id: string;
+  musicality: number;
   branches: BranchInfo[];
   created_at: string;
   updated_at: string;
@@ -100,6 +102,7 @@ export interface SessionSummary {
 
 export interface CreateSessionRequest {
   style_key: string;
+  musicality?: number;
 }
 
 export interface CreateSessionResponse {
@@ -155,6 +158,20 @@ export interface UIState {
   matches: StyleMatch[];
   candidates: ChordCandidate[];
   session: SessionState | null;
+  musicality: number;
   isLoading: boolean;
   error: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Musicality
+// ---------------------------------------------------------------------------
+
+export interface UpdateMusicalityRequest {
+  musicality: number;
+}
+
+export interface UpdateMusicalityResponse {
+  session: SessionState;
+  candidates: ChordCandidate[];
 }

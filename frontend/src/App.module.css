@@ -1,6 +1,6 @@
 .app {
   min-height: 100vh;
-  background: #1a1a2e;
+  background: #0a0a0a;
   color: #e0e0e0;
 }
 
@@ -9,14 +9,14 @@
   align-items: baseline;
   gap: 16px;
   padding: 1rem 2rem;
-  background: #16213e;
-  border-bottom: 1px solid #0f3460;
+  background: #151515;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #e94560;
+  color: #4ade80;
 }
 
 .styleMeta {
@@ -32,18 +32,18 @@
 
 .headerBtn {
   padding: 4px 12px;
-  border: 1px solid #555;
+  border: 1px solid #444;
   border-radius: 4px;
   background: transparent;
-  color: #aaa;
+  color: #999;
   cursor: pointer;
   font-size: 0.8rem;
   transition: border-color 0.2s, color 0.2s;
 }
 
 .headerBtn:hover {
-  border-color: #e94560;
-  color: #e94560;
+  border-color: #4ade80;
+  color: #4ade80;
 }
 
 .main {
@@ -57,7 +57,7 @@
 }
 
 .doneHeading {
-  color: #e94560;
+  color: #4ade80;
   margin: 0 0 8px;
   font-size: 1.1rem;
 }
@@ -66,8 +66,8 @@
   padding: 10px 24px;
   border: none;
   border-radius: 6px;
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
   cursor: pointer;
   font-weight: 600;
   font-size: 1rem;
@@ -75,5 +75,5 @@
 }
 
 .restartBtn:hover {
-  background: #c73650;
+  background: #22c55e;
 }

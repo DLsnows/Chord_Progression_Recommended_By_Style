@@ -6,6 +6,7 @@ import ChordSelector from './components/ChordSelector';
 import SequenceDisplay from './components/SequenceDisplay';
 import BranchNav from './components/BranchNav';
 import SessionHistory from './components/SessionHistory';
+import MusicalitySlider from './components/MusicalitySlider';
 import s from './App.module.css';
 
 function App() {
@@ -74,6 +75,10 @@ function App() {
 
         {state.phase === 'RECOMMENDING' && (
           <>
+            <MusicalitySlider
+              value={state.musicality}
+              onChange={actions.updateMusicality}
+            />
             <BranchNav
               branches={branches}
               activeBranchId={activeBranchId}

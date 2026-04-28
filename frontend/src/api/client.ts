@@ -13,6 +13,8 @@ import type {
   SessionState,
   SessionSummary,
   BranchActionResponse,
+  UpdateMusicalityRequest,
+  UpdateMusicalityResponse,
 } from '../types';
 
 const BASE_URL = 'http://localhost:8000/api/v1';
@@ -157,5 +159,19 @@ export function renameBranch(
 export function deleteBranch(sessionId: string, branchId: string): Promise<BranchActionResponse> {
   return request<BranchActionResponse>(`/sessions/${sessionId}/branches/${branchId}`, {
     method: 'DELETE',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Musicality
+// ---------------------------------------------------------------------------
+
+export function updateMusicality(
+  sessionId: string,
+  body: UpdateMusicalityRequest,
+): Promise<UpdateMusicalityResponse> {
+  return request<UpdateMusicalityResponse>(`/sessions/${sessionId}/musicality`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
   });
 }

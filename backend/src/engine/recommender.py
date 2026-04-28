@@ -49,6 +49,7 @@ class Recommender:
         style_group: dict[str, Any],
         selected_indices: list[int],
         top_k: int = TOP_K,
+        musicality: float = 0.0,
     ) -> list[dict[str, Any]]:
         """Recommend the next chord given a style group and selected sequence.
 
@@ -56,6 +57,7 @@ class Recommender:
             style_group: Style index entry with file/root_file/starting_probs keys.
             selected_indices: Ordered list of previously selected chord indices.
             top_k: Number of candidates to return.
+            musicality: 0.0=normal, 1.0=prefer non-triad chords.
 
         Returns:
             List of {chord_idx, chord_name, score, chord_info} dicts.
@@ -69,7 +71,7 @@ class Recommender:
 
         # Cold start: use starting (unigram) distribution
         if not selected_indices:
-            return self._cold_start(style_group, top_k)
+            return self._cold_start(style_group, top_k, musicality)
 
         # Weighted n-gram scoring
         context = selected_indices[-CONTEXT_WINDOW:]
@@ -98,10 +100,10 @@ class Recommender:
         for idx in selected_indices:
             scores[idx] = -1.0
 
-        return self._top_k(scores, top_k)
+        return self._top_k(scores, top_k, musicality)
 
     def _cold_start(
-        self, style_group: dict[str, Any], top_k: int
+        self, style_group: dict[str, Any], top_k: int, musicality: float = 0.0
     ) -> list[dict[str, Any]]:
         """Recommend from the unigram starting-probability distribution."""
         starting = style_group.get("starting_probs", {})
@@ -115,11 +117,38 @@ class Recommender:
             if idx < self.vocab_size:
                 scores[idx] = float(prob)
 
-        return self._top_k(scores, top_k)
+        return self._top_k(scores, top_k, musicality)
+
+    def _apply_musicality(self, scores: np.ndarray, musicality: float) -> None:
+        """Adjust scores to penalize basic major/minor triads and boost other chords.
+        Modifies scores in-place."""
+        if musicality <= 0:
+            return
+        triad_qualities = {"maj", "min"}
+        for idx in range(len(scores)):
+            if scores[idx] <= 0:
+                continue
+            name = self.chord_vocab[idx]
+            info = self.chord_map.get(name)
+            if info is None:
+                continue
+            if info.quality in triad_qualities:
+                scores[idx] *= (1.0 - musicality * 0.9)
+            else:
+                scores[idx] *= (1.0 + musicality * 0.5)
 
     def _default_start(self, top_k: int) -> list[dict[str, Any]]:
-        """Fallback cold-start: prefer major/minor tonics."""
-        tonic_names = ["C", "G", "F", "A", "D", "E", "Amin", "Emin", "Dmin"]
+        """Fallback cold-start: common chords across all 12 roots."""
+        # Major and minor triads for all 12 roots, roughly ordered by commonness
+        tonic_names = [
+            "C", "G", "F", "A", "D", "E",
+            "Amin", "Emin", "Dmin", "Bmin", "Fmin", "Cmin",
+            "B", "Fs", "Cs", "Gs", "Ds", "As",
+            "Gmin", "Fsmin", "Csmin", "Gsmin", "Dsmin", "Asmin",
+            "C7", "G7", "F7", "D7", "A7", "E7",
+            "Cmaj7", "Fmaj7", "Gmaj7",
+            "Amin7", "Dmin7", "Emin7",
+        ]
         results: list[dict[str, Any]] = []
         for name in tonic_names:
             idx = self.chord_to_idx.get(name)
@@ -132,8 +161,9 @@ class Recommender:
                 })
         return results
 
-    def _top_k(self, scores: np.ndarray, top_k: int) -> list[dict[str, Any]]:
-        """Extract top-k scored chords."""
+    def _top_k(self, scores: np.ndarray, top_k: int, musicality: float = 0.0) -> list[dict[str, Any]]:
+        """Extract top-k scored chords, optionally applying musicality bias."""
+        self._apply_musicality(scores, musicality)
         order = np.argsort(-scores)
         results: list[dict[str, Any]] = []
         for idx in order:

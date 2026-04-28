@@ -25,7 +25,10 @@
       "Bash(curl -s -X POST http://localhost:8000/api/v1/sessions -H \"Content-Type: application/json\" -d '{\"style_key\":\"jazz|1960|verse\"}')",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); sid=d['session']['id']; print\\(f'Created session: {sid}'\\)\")",
       "Bash(curl -s -X POST http://localhost:8000/api/v1/sessions/813715b06ef7/resume)",
-      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Session: {d[\\\\\"session\\\\\"][\\\\\"id\\\\\"][:12]}...'\\); print\\(f'Candidates: {len\\(d[\\\\\"candidates\\\\\"]\\)}'\\); print\\(f'Phase: {d[\\\\\"session\\\\\"][\\\\\"style_genre_tag\\\\\"]} {d[\\\\\"session\\\\\"][\\\\\"style_decade\\\\\"]} {d[\\\\\"session\\\\\"][\\\\\"style_section\\\\\"]}'\\)\")"
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Session: {d[\\\\\"session\\\\\"][\\\\\"id\\\\\"][:12]}...'\\); print\\(f'Candidates: {len\\(d[\\\\\"candidates\\\\\"]\\)}'\\); print\\(f'Phase: {d[\\\\\"session\\\\\"][\\\\\"style_genre_tag\\\\\"]} {d[\\\\\"session\\\\\"][\\\\\"style_decade\\\\\"]} {d[\\\\\"session\\\\\"][\\\\\"style_section\\\\\"]}'\\)\")",
+      "Bash(curl -s http://127.0.0.1:8000/api/v1/styles -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/v1/styles/search -H \"Content-Type: application/json\" -d '{\"query\":\"jazz\"}')",
+      "Bash(curl -s -X OPTIONS http://127.0.0.1:8000/api/v1/sessions/abc123/musicality -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: PATCH\" -I)"
     ]
   }
 }

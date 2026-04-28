@@ -18,6 +18,7 @@ class CreateSessionRequest(BaseModel):
     style_key: str = Field(
         ..., description="Style group key from style_index (e.g. 'ballad|1960|verse')"
     )
+    musicality: float = Field(0.0, ge=0.0, le=1.0, description="Musicality bias: 0=normal, 1=prefer complex chords")
 
 
 class SelectChordRequest(BaseModel):
@@ -117,6 +118,7 @@ class SessionState(BaseModel):
     style_decade: int
     style_section: str
     active_branch_id: str
+    musicality: float
     branches: list[BranchInfo]
     created_at: str
     updated_at: str
@@ -174,6 +176,7 @@ class CreateBranchResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class ChordDetail(BaseModel):
+    chord_idx: int
     name: str
     root_pc: int
     root_name: str
@@ -183,3 +186,16 @@ class ChordDetail(BaseModel):
     midi_notes_c3: list[int]
     midi_notes_c4: list[int]
     midi_notes_c5: list[int]
+
+
+# ---------------------------------------------------------------------------
+# Musicality
+# ---------------------------------------------------------------------------
+
+class UpdateMusicalityRequest(BaseModel):
+    musicality: float = Field(..., ge=0.0, le=1.0)
+
+
+class UpdateMusicalityResponse(BaseModel):
+    session: SessionState
+    candidates: list[ChordCandidate]

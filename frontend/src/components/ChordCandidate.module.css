@@ -4,9 +4,9 @@
   gap: 12px;
   width: 100%;
   padding: 10px 14px;
-  border: 1px solid #333;
+  border: 1px solid #3a3a3a;
   border-radius: 8px;
-  background: #16213e;
+  background: #151515;
   color: #e0e0e0;
   cursor: pointer;
   text-align: left;
@@ -14,8 +14,8 @@
 }
 
 .card:hover {
-  border-color: #e94560;
-  background: #1a2745;
+  border-color: #4ade80;
+  background: #252525;
   transform: translateX(4px);
 }
 
@@ -26,7 +26,7 @@
 .chordName {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #e94560;
+  color: #4ade80;
 }
 
 .quality {
@@ -47,7 +47,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 1px solid #555;
+  border: 1px solid #444;
   border-radius: 50%;
   background: transparent;
   color: #999;
@@ -59,12 +59,12 @@
 }
 
 .playBtn:hover {
-  border-color: #e94560;
-  color: #e94560;
+  border-color: #4ade80;
+  color: #4ade80;
 }
 
 .playBtnActive {
-  background: #e94560;
-  border-color: #e94560;
-  color: #fff;
+  background: #4ade80;
+  border-color: #4ade80;
+  color: #0a0a0a;
 }

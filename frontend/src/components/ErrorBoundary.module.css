@@ -9,7 +9,7 @@
 }
 
 .heading {
-  color: #e94560;
+  color: #4ade80;
   font-size: 1.4rem;
   margin: 0 0 8px;
 }
@@ -24,16 +24,16 @@
 
 .reloadBtn {
   padding: 8px 20px;
-  border: 1px solid #e94560;
+  border: 1px solid #4ade80;
   border-radius: 6px;
   background: transparent;
-  color: #e94560;
+  color: #4ade80;
   cursor: pointer;
   font-size: 0.95rem;
   transition: background 0.2s, color 0.2s;
 }
 
 .reloadBtn:hover {
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
 }

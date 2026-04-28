@@ -16,6 +16,7 @@ const initialState: UIState = {
   matches: [],
   candidates: [],
   session: null,
+  musicality: 0,
   isLoading: false,
   error: null,
 };
@@ -32,6 +33,7 @@ interface Actions {
   switchBranch: (branchId: string) => Promise<void>;
   renameBranch: (branchId: string, label: string) => Promise<void>;
   deleteBranch: (branchId: string) => Promise<void>;
+  updateMusicality: (value: number) => Promise<void>;
 }
 
 export function useRecommendation(): { state: UIState; actions: Actions } {
@@ -66,9 +68,10 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
   // ---- start session ----
 
   const startSession = useCallback(async (match: StyleMatch) => {
+    const { musicality } = state as { musicality: number };
     setState((s) => ({ ...s, isLoading: true, error: null }));
     try {
-      const result = await api.createSession({ style_key: match.key });
+      const result = await api.createSession({ style_key: match.key, musicality });
       setState((s) => ({
         ...s,
         phase: 'RECOMMENDING',
@@ -81,7 +84,7 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
       const msg = err instanceof Error ? err.message : 'Failed to create session';
       setState((s) => ({ ...s, isLoading: false, error: msg }));
     }
-  }, []);
+  }, [state]);
 
   // ---- select chord ----
 
@@ -95,11 +98,20 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
 
     // Optimistic update: add chord to local state
     const position = (activeBranch(currentSession)?.chords.length ?? 0) + 1;
+
+    // Ensure the selected chord is in the candidates list so SequenceDisplay
+    // can look up its midi_notes for piano roll rendering and playback.
+    const candidatesWithSelection = state.candidates.some(
+      (c) => c.chord_idx === candidate.chord_idx
+    )
+      ? state.candidates
+      : [...state.candidates, candidate];
+
     const optimisticSelection: ChordSelectionItem = {
       position,
       chord_name: candidate.chord_name,
       chord_idx: candidate.chord_idx,
-      candidates: state.candidates,
+      candidates: candidatesWithSelection,
       selected_at: new Date().toISOString(),
     };
 
@@ -186,6 +198,7 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
         isLoading: false,
         session: result.session,
         candidates: result.candidates,
+        musicality: result.session.musicality ?? 0,
         matches: [],
       }));
     } catch (err: unknown) {
@@ -265,6 +278,25 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
     }
   }, [state]);
 
+  const updateMusicality = useCallback(async (value: number) => {
+    const { session: currentSession } = state as { session: SessionState | null };
+    if (!currentSession) return;
+
+    setState((s) => ({ ...s, musicality: value, isLoading: true, error: null }));
+    try {
+      const result = await api.updateMusicality(currentSession.id, { musicality: value });
+      setState((s) => ({
+        ...s,
+        isLoading: false,
+        session: result.session,
+        candidates: result.candidates,
+      }));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update musicality';
+      setState((s) => ({ ...s, isLoading: false, error: msg }));
+    }
+  }, [state]);
+
   return {
     state,
     actions: {
@@ -279,6 +311,7 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
       switchBranch,
       renameBranch,
       deleteBranch,
+      updateMusicality,
     },
   };
 }

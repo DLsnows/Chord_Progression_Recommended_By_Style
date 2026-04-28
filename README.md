@@ -55,7 +55,10 @@ npm run dev
 4. Click a chord card to select it, or click the ♪ button to preview its sound
 5. Continue selecting chords to build your progression
 6. Use **Play All** to hear the full sequence, **Undo** to go back, **Fork** to try alternate paths
-7. Click **Finish** to compare all branches side by side
+7. Adjust the **Musicality** slider to control the trade-off between standard triads and complex chords
+8. Type a custom chord name (e.g., `Cmaj7`, `Amin`) to add chords not in the AI recommendations
+9. Click **Finish** to compare all branches side by side
+10. Access **History** to resume or delete past sessions
 
 ## API Overview
 
@@ -71,7 +74,9 @@ npm run dev
 | POST | `/api/v1/sessions/{id}/undo` | Undo last pick |
 | POST | `/api/v1/sessions/{id}/branches` | Fork a new branch at position N |
 | PUT | `/api/v1/sessions/{id}/branches/{bid}` | Switch active branch |
-| GET | `/api/v1/chords/{name}` | Chord detail (MIDI notes, intervals, vector) |
+| GET | `/api/v1/chords/{name}` | Chord detail with chord_idx (MIDI notes, intervals, vector) |
+| POST | `/api/v1/sessions/{id}/resume` | Resume past session with current candidates |
+| PATCH | `/api/v1/sessions/{id}/musicality` | Update musicality bias (0.0–1.0) and regenerate candidates |
 
 ## Key Design Decisions
 
@@ -80,3 +85,22 @@ npm run dev
 - **Three-tier style fallback**: exact tag match → same genre/section (all decades) → global
 - **Sparse transition matrices**: scipy CSR via parquet (587 MB for 57K groups vs. multi-GB dense)
 - **SQLite session persistence**: multi-branch selection trees for A/B progression comparison
+
+## Recent Changes (April 2026)
+
+### Custom Chord Input
+- Users can type any chord name from the database as a 6th option alongside AI recommendations
+- Automatic flat→sharp conversion (Db→Cs, Eb→Ds, etc.) and quality alias normalization
+- Lookup validates against the chord vocabulary before allowing selection
+
+### Expanded Initial Options
+- First chord selection now shows up to **50 candidates** (was 5), giving more key variety
+- Fallback chord list expanded from 9 to 33 chords covering all 12 roots
+
+### Musicality Parameter
+- Adjustable slider (0.0–1.0) controlling the trade-off between major/minor triads and complex chords
+- Higher values penalize basic triads and boost extended chords (7ths, 9ths, dim, aug, sus)
+- Session-persisted — musicality setting is saved and restored when resuming a session
+
+### Bug Fix: Multi-Word Genre Search
+- Style queries with multi-word genre tags (e.g., "cool jazz", "alternative metal") now match correctly via n-gram tokenization

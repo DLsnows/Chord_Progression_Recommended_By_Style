@@ -33,9 +33,9 @@ function PianoRoll({
     const active = activeSet.has(key.midiNote);
     const isRoot = rootNote !== undefined && key.midiNote % 12 === rootNote % 12;
     if (key.isBlack) {
-      if (isRoot && active) return '#e94560';
-      if (active) return '#0f3460';
-      return '#1a1a2e';
+      if (isRoot && active) return '#4ade80';
+      if (active) return '#166534';
+      return '#0a0a0a';
     }
     if (isRoot && active) return NOTE_COLORS.root;
     if (active) return NOTE_COLORS.whiteKeyActive;
@@ -53,7 +53,7 @@ function PianoRoll({
         <g key={`w-${key.midiNote}`}>
           <rect
             x={key.x} y={key.y} width={key.width} height={key.height}
-            fill={keyFill(key)} stroke="#999" strokeWidth={0.5} rx={1}
+            fill={keyFill(key)} stroke="#555" strokeWidth={0.5} rx={1}
           />
           {showLabels && key.pitchClass === 0 && (
             <text

@@ -18,9 +18,9 @@
 
 .undoBtn {
   padding: 6px 16px;
-  border: 1px solid #555;
+  border: 1px solid #444;
   border-radius: 4px;
-  background: #16213e;
+  background: #151515;
   color: #e0e0e0;
   cursor: pointer;
   font-size: 0.9rem;
@@ -28,8 +28,8 @@
 }
 
 .undoBtn:hover:not(:disabled) {
-  border-color: #999;
-  background: #1a2745;
+  border-color: #555;
+  background: #252525;
 }
 
 .undoBtn:disabled {
@@ -41,8 +41,8 @@
   padding: 6px 16px;
   border: none;
   border-radius: 4px;
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
@@ -50,38 +50,38 @@
 }
 
 .finishBtn:hover {
-  background: #c73650;
+  background: #22c55e;
 }
 
 .playAllBtn {
   padding: 6px 14px;
-  border: 1px solid #e94560;
+  border: 1px solid #4ade80;
   border-radius: 4px;
   background: transparent;
-  color: #e94560;
+  color: #4ade80;
   cursor: pointer;
   font-size: 0.85rem;
   transition: background 0.2s, color 0.2s;
 }
 
 .playAllBtn:hover {
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
 }
 
 .playAllBtnActive {
   padding: 6px 14px;
-  border: 1px solid #e94560;
+  border: 1px solid #4ade80;
   border-radius: 4px;
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
   cursor: pointer;
   font-size: 0.85rem;
   transition: background 0.2s;
 }
 
 .playAllBtnActive:hover {
-  background: #c73650;
+  background: #22c55e;
 }
 
 .chordList {
@@ -92,16 +92,16 @@
 
 .chordChip {
   padding: 8px 10px;
-  border: 1px solid #333;
+  border: 1px solid #3a3a3a;
   border-radius: 6px;
-  background: #16213e;
+  background: #151515;
   text-align: center;
   min-width: 100px;
 }
 
 .chipName {
   font-weight: 600;
-  color: #e94560;
+  color: #4ade80;
   margin-bottom: 4px;
 }
 
@@ -129,20 +129,20 @@
 }
 
 .chipPlayBtn:hover {
-  border-color: #e94560;
-  color: #e94560;
+  border-color: #4ade80;
+  color: #4ade80;
 }
 
 .chipPlayBtnActive {
-  background: #e94560;
-  border-color: #e94560;
-  color: #fff;
+  background: #4ade80;
+  border-color: #4ade80;
+  color: #0a0a0a;
   animation: pulse 0.6s ease-in-out infinite alternate;
 }
 
 @keyframes pulse {
-  from { box-shadow: 0 0 2px #e94560; }
-  to { box-shadow: 0 0 10px #e94560; }
+  from { box-shadow: 0 0 2px #4ade80; }
+  to { box-shadow: 0 0 10px #4ade80; }
 }
 
 .empty {

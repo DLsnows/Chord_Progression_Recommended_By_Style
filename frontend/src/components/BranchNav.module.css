@@ -14,22 +14,22 @@
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  border: 2px solid #333;
+  border: 2px solid #3a3a3a;
   border-radius: 6px;
-  background: #1a1a2e;
+  background: #0a0a0a;
   cursor: pointer;
   font-size: 0.85rem;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .tab:hover {
-  border-color: #555;
+  border-color: #4ade80;
 }
 
 .tabActive {
   composes: tab;
-  border-color: #e94560;
-  background: #16213e;
+  border-color: #4ade80;
+  background: #151515;
   cursor: default;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .tabLabelActive {
-  color: #e94560;
+  color: #4ade80;
 }
 
 .tabCount {
@@ -49,11 +49,16 @@
 .editInput {
   width: 80px;
   font-size: 0.8rem;
-  background: #16213e;
+  background: #151515;
   color: #e0e0e0;
-  border: 1px solid #555;
+  border: 1px solid #3a3a3a;
   border-radius: 3px;
   padding: 2px 4px;
+}
+
+.editInput:focus {
+  border-color: #4ade80;
+  outline: none;
 }
 
 .iconBtn {
@@ -77,16 +82,16 @@
 
 .iconBtnDanger {
   composes: iconBtn;
-  color: #e94560;
+  color: #ef4444;
 }
 
 .iconBtnDanger:hover {
-  color: #ff6b7a;
+  color: #ef4444;
 }
 
 .forkBtn {
   padding: 6px 12px;
-  border: 1px dashed #555;
+  border: 1px dashed #3a3a3a;
   border-radius: 6px;
   background: transparent;
   color: #999;
@@ -96,8 +101,8 @@
 }
 
 .forkBtn:hover {
-  border-color: #e94560;
-  color: #e94560;
+  border-color: #4ade80;
+  color: #4ade80;
 }
 
 .forkForm {
@@ -115,9 +120,9 @@
 
 .forkSelect,
 .forkInput {
-  background: #16213e;
+  background: #151515;
   color: #e0e0e0;
-  border: 1px solid #333;
+  border: 1px solid #3a3a3a;
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 0.85rem;
@@ -125,7 +130,7 @@
 
 .forkSelect:focus,
 .forkInput:focus {
-  border-color: #e94560;
+  border-color: #4ade80;
   outline: none;
 }
 
@@ -133,8 +138,8 @@
   padding: 4px 14px;
   border: none;
   border-radius: 4px;
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -142,7 +147,7 @@
 }
 
 .forkCreateBtn:hover:not(:disabled) {
-  background: #c73650;
+  background: #22c55e;
 }
 
 .forkCreateBtn:disabled {

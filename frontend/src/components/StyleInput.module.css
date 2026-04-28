@@ -12,9 +12,9 @@
 .input {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid #333;
+  border: 1px solid #3a3a3a;
   border-radius: 6px;
-  background: #16213e;
+  background: #151515;
   color: #e0e0e0;
   font-size: 1rem;
   outline: none;
@@ -22,7 +22,7 @@
 }
 
 .input:focus {
-  border-color: #e94560;
+  border-color: #4ade80;
 }
 
 .input::placeholder {
@@ -33,8 +33,8 @@
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
-  background: #e94560;
-  color: #fff;
+  background: #4ade80;
+  color: #0a0a0a;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.95rem;
@@ -43,7 +43,7 @@
 }
 
 .searchBtn:hover:not(:disabled) {
-  background: #c73650;
+  background: #22c55e;
 }
 
 .searchBtn:disabled {
@@ -52,7 +52,7 @@
 }
 
 .error {
-  color: #e94560;
+  color: #ef4444;
   font-size: 0.9rem;
   padding: 4px 0;
 }
@@ -80,9 +80,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  border: 1px solid #333;
+  border: 1px solid #3a3a3a;
   border-radius: 6px;
-  background: #16213e;
+  background: #151515;
   color: #e0e0e0;
   cursor: pointer;
   text-align: left;
@@ -90,12 +90,12 @@
 }
 
 .matchBtn:hover {
-  border-color: #e94560;
-  background: #1a2745;
+  border-color: #4ade80;
+  background: #252525;
 }
 
 .matchTag {
-  color: #e94560;
+  color: #4ade80;
   font-weight: 600;
 }
 

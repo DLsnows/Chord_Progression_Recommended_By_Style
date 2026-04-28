@@ -14,8 +14,10 @@ CHORD_VOCAB_SIZE = (N_CHORD_TYPES + 7) * N_ROOTS  # 1860
 
 # Recommendation engine
 CONTEXT_WINDOW = 16
-DECAY_LAMBDA = 0.85
+DECAY_LAMBDA = 0.92
 TOP_K = 5
+TOP_K_FIRST = 50
+DEFAULT_MUSICALITY = 0.0
 ALPHA = 0.85  # main factor weight (chord transition) vs root motion
 
 # Augmentation

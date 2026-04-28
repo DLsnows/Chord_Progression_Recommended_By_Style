@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     style_root_file TEXT NOT NULL,
     style_starting_probs TEXT NOT NULL DEFAULT '{}',
     active_branch_id TEXT,
+    musicality REAL NOT NULL DEFAULT 0.0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
@@ -71,6 +72,13 @@ class SessionManager:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("PRAGMA foreign_keys = ON")
             conn.executescript(SCHEMA_SQL)
+            # Migration: add musicality column to existing databases
+            try:
+                conn.execute(
+                    "ALTER TABLE sessions ADD COLUMN musicality REAL NOT NULL DEFAULT 0.0"
+                )
+            except sqlite3.OperationalError:
+                pass  # column already exists
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
@@ -82,7 +90,7 @@ class SessionManager:
     # Sessions
     # ------------------------------------------------------------------
 
-    def create_session(self, style_group: dict[str, Any]) -> dict[str, Any]:
+    def create_session(self, style_group: dict[str, Any], musicality: float = 0.0) -> dict[str, Any]:
         """Create a new session with a root branch. Returns full session state."""
         session_id = uuid.uuid4().hex[:12]
         branch_id = uuid.uuid4().hex[:12]
@@ -93,8 +101,8 @@ class SessionManager:
                 """INSERT INTO sessions
                    (id, style_genre_tag, style_decade, style_section,
                     style_file, style_root_file, style_starting_probs,
-                    active_branch_id, created_at, updated_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    active_branch_id, musicality, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     session_id,
                     style_group["genre_tag"],
@@ -104,6 +112,7 @@ class SessionManager:
                     style_group.get("root_file", ""),
                     json.dumps(style_group.get("starting_probs", {})),
                     branch_id,
+                    musicality,
                     now,
                     now,
                 ),
@@ -182,6 +191,18 @@ class SessionManager:
             cur = conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
             conn.commit()
             return cur.rowcount > 0
+
+    def update_musicality(self, session_id: str, value: float) -> dict[str, Any]:
+        """Update the musicality parameter for a session."""
+        with self._get_conn() as conn:
+            cur = conn.execute(
+                "UPDATE sessions SET musicality = ?, updated_at = ? WHERE id = ?",
+                (value, _now_iso(), session_id),
+            )
+            conn.commit()
+            if cur.rowcount == 0:
+                raise KeyError(f"Session not found: {session_id}")
+        return self.get_session(session_id)
 
     def _update_ts(self, conn: sqlite3.Connection, session_id: str) -> None:
         conn.execute(
