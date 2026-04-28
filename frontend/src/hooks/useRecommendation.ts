@@ -27,6 +27,7 @@ interface Actions {
   undo: () => Promise<void>;
   finish: () => void;
   restart: () => void;
+  loadSession: (sessionId: string) => Promise<void>;
   createBranch: (forkPosition: number, label: string) => Promise<void>;
   switchBranch: (branchId: string) => Promise<void>;
   renameBranch: (branchId: string, label: string) => Promise<void>;
@@ -173,6 +174,26 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
     setState(initialState);
   }, []);
 
+  // ---- load session (history) ----
+
+  const loadSession = useCallback(async (sessionId: string) => {
+    setState((s) => ({ ...s, isLoading: true, error: null }));
+    try {
+      const result = await api.resumeSession(sessionId);
+      setState((s) => ({
+        ...s,
+        phase: 'RECOMMENDING',
+        isLoading: false,
+        session: result.session,
+        candidates: result.candidates,
+        matches: [],
+      }));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to load session';
+      setState((s) => ({ ...s, isLoading: false, error: msg }));
+    }
+  }, []);
+
   // ---- branch operations ----
 
   const createBranch = useCallback(async (forkPosition: number, label: string) => {
@@ -253,6 +274,7 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
       undo,
       finish,
       restart,
+      loadSession,
       createBranch,
       switchBranch,
       renameBranch,

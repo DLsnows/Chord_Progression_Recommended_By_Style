@@ -24,6 +24,28 @@
   font-size: 0.85rem;
 }
 
+.headerActions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.headerBtn {
+  padding: 4px 12px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.headerBtn:hover {
+  border-color: #e94560;
+  color: #e94560;
+}
+
 .main {
   max-width: 960px;
   margin: 0 auto;

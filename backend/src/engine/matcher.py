@@ -187,14 +187,31 @@ class StyleMatcher:
         return results[:top_n]
 
     def _tokenize(self, query: str) -> set[str]:
-        """Lowercase + split query into tokens, also emit multi-word substrings."""
+        """Lowercase + split query into tokens, match multi-word sub-tags."""
         lower = query.strip().lower()
-        tokens = set(lower.split())
+        words = lower.split()
+
         # Remove common stopwords
         stopwords = {"a", "an", "the", "and", "or", "in", "of", "to", "from",
                      "with", "like", "style", "music", "song", "section", "genre",
                      "年代", "风格", "音乐", "歌曲", "部分", "的"}
-        tokens -= stopwords
+        words = [w for w in words if w not in stopwords]
+        tokens = set(words)
+
+        # Generate n-grams (bigrams, trigrams, 4-grams) from consecutive words
+        # to match multi-word genre tags like "alternative metal", "cool jazz"
+        for n in range(2, 5):
+            for i in range(len(words) - n + 1):
+                ngram = " ".join(words[i:i + n])
+                if ngram in self.all_sub_tags:
+                    tokens.add(ngram)
+
+        # Direct substring check: catch cases where stopword removal breaks
+        # the n-gram chain (e.g. "rock and roll" where "and" is a stopword)
+        for tag in self.all_sub_tags:
+            if " " in tag and tag in lower:
+                tokens.add(tag)
+
         return tokens
 
     def _extract_decade(self, tokens: set[str]) -> int | None:

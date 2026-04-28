@@ -1,18 +1,32 @@
+import { useState } from 'react';
 import { useRecommendation } from './hooks/useRecommendation';
 import ErrorBoundary from './components/ErrorBoundary';
 import StyleInput from './components/StyleInput';
 import ChordSelector from './components/ChordSelector';
 import SequenceDisplay from './components/SequenceDisplay';
 import BranchNav from './components/BranchNav';
+import SessionHistory from './components/SessionHistory';
 import s from './App.module.css';
 
 function App() {
   const { state, actions } = useRecommendation();
+  const [showHistory, setShowHistory] = useState(false);
 
   const branches = state.session?.branches ?? [];
   const activeBranchId = state.session?.active_branch_id ?? null;
   const activeBranch = branches.find((b) => b.id === activeBranchId);
   const sequence = activeBranch?.chords ?? [];
+
+  function handleRestart() {
+    if (window.confirm('Start a new search? Current progress will be saved in history.')) {
+      actions.restart();
+    }
+  }
+
+  function handleResume(sessionId: string) {
+    setShowHistory(false);
+    actions.loadSession(sessionId);
+  }
 
   return (
     <ErrorBoundary>
@@ -26,10 +40,29 @@ function App() {
             {' · '}{state.session.style_section}
           </span>
         )}
+        <div className={s.headerActions}>
+          {(state.phase === 'IDLE' || state.phase === 'MATCHING') && !showHistory && (
+            <button className={s.headerBtn} onClick={() => setShowHistory(true)}>
+              History
+            </button>
+          )}
+          {state.phase === 'RECOMMENDING' && (
+            <button className={s.headerBtn} onClick={handleRestart}>
+              New Search
+            </button>
+          )}
+        </div>
       </header>
 
       <main className={s.main}>
-        {(state.phase === 'IDLE' || state.phase === 'MATCHING') && (
+        {showHistory && (state.phase === 'IDLE' || state.phase === 'MATCHING') && (
+          <SessionHistory
+            onResume={handleResume}
+            onBack={() => setShowHistory(false)}
+          />
+        )}
+
+        {!showHistory && (state.phase === 'IDLE' || state.phase === 'MATCHING') && (
           <StyleInput
             matches={state.matches}
             isLoading={state.isLoading}
@@ -74,9 +107,14 @@ function App() {
                 <SequenceDisplay chords={b.chords} readonly onUndo={() => {}} onFinish={() => {}} />
               </div>
             ))}
-            <button className={s.restartBtn} onClick={actions.restart}>
-              Start New
-            </button>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
+              <button className={s.restartBtn} onClick={actions.restart}>
+                Start New
+              </button>
+              <button className={s.headerBtn} onClick={() => { setShowHistory(true); actions.restart(); }}>
+                View History
+              </button>
+            </div>
           </div>
         )}
       </main>

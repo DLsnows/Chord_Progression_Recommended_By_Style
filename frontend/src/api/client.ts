@@ -89,6 +89,12 @@ export function getSession(sessionId: string): Promise<SessionState> {
   return request<SessionState>(`/sessions/${sessionId}`);
 }
 
+export function resumeSession(sessionId: string): Promise<CreateSessionResponse> {
+  return request<CreateSessionResponse>(`/sessions/${sessionId}/resume`, {
+    method: 'POST',
+  });
+}
+
 export function deleteSession(sessionId: string): Promise<void> {
   return request<void>(`/sessions/${sessionId}`, { method: 'DELETE' });
 }

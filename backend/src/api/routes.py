@@ -13,6 +13,7 @@ from .schemas import (
     CreateSessionRequest,
     CreateSessionResponse,
     RenameBranchRequest,
+    ResumeSessionResponse,
     SelectChordRequest,
     SelectChordResponse,
     SessionListResponse,
@@ -176,6 +177,26 @@ def delete_session(session_id: str, request: Request) -> None:
     sessions = _get_sessions(request)
     if not sessions.delete_session(session_id):
         raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")
+
+
+@router.post("/sessions/{session_id}/resume", response_model=ResumeSessionResponse)
+def resume_session(session_id: str, request: Request) -> dict[str, Any]:
+    """Resume a past session — return its full state and current candidates."""
+    sessions = _get_sessions(request)
+    recommender = _get_recommender(request)
+    matcher = _get_matcher(request)
+    chord_map = _get_chord_map(request)
+
+    try:
+        session = sessions.get_session(session_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")
+
+    candidates = _generate_candidates(session, matcher, recommender, chord_map)
+    return {
+        "session": _build_session_state(session),
+        "candidates": candidates,
+    }
 
 
 # ---------------------------------------------------------------------------
