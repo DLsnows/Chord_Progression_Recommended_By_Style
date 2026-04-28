@@ -128,8 +128,14 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
         candidates: result.candidates,
       }));
     } catch (err: unknown) {
+      // Rollback optimistic update: re-fetch authoritative session state
       const msg = err instanceof Error ? err.message : 'Selection failed';
-      setState((s) => ({ ...s, isLoading: false, error: msg }));
+      try {
+        const refreshed = await api.getSession(currentSession.id);
+        setState((s) => ({ ...s, isLoading: false, session: refreshed, error: msg }));
+      } catch {
+        setState((s) => ({ ...s, isLoading: false, error: msg }));
+      }
     }
   }, [state]);
 
@@ -183,18 +189,8 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
         ...s,
         isLoading: false,
         session: result.session,
-        // Re-rank candidates for the new branch
-        candidates: [],
+        candidates: result.candidates,
       }));
-      // Re-fetch candidates for the (now shorter) active branch
-      const refreshed = await api.getSession(currentSession.id);
-      const ab = refreshed.branches.find((b) => b.id === refreshed.active_branch_id);
-      if (ab && ab.chords.length > 0) {
-        // Re-play the last selection to get candidates
-        const last = ab.chords[ab.chords.length - 1];
-        // Undo and redo approach won't work; just leave empty for now
-      }
-      setState((s) => ({ ...s, session: refreshed }));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Branch creation failed';
       setState((s) => ({ ...s, isLoading: false, error: msg }));
@@ -205,21 +201,18 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
     const { session: currentSession } = state as { session: SessionState | null };
     if (!currentSession) return;
 
+    setState((s) => ({ ...s, isLoading: true, error: null }));
     try {
       const result = await api.switchBranch(currentSession.id, branchId);
-      // Recompute candidates for the switched-to branch
-      const ab = result.session.branches.find((b) => b.id === branchId);
-      const indices = ab?.chords.map((c) => c.chord_idx) ?? [];
-      // We need to get fresh candidates via a quick select/undo or separate endpoint
-      // For now, load session state and clear candidates
       setState((s) => ({
         ...s,
+        isLoading: false,
         session: result.session,
-        candidates: [], // will be populated on next selectChord
+        candidates: result.candidates,
       }));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Branch switch failed';
-      setState((s) => ({ ...s, error: msg }));
+      setState((s) => ({ ...s, isLoading: false, error: msg }));
     }
   }, [state]);
 
@@ -227,6 +220,7 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
     const { session: currentSession } = state as { session: SessionState | null };
     if (!currentSession) return;
 
+    setState((s) => ({ ...s, error: null }));
     try {
       const result = await api.renameBranch(currentSession.id, branchId, label);
       setState((s) => ({ ...s, session: result.session }));
@@ -240,6 +234,7 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
     const { session: currentSession } = state as { session: SessionState | null };
     if (!currentSession) return;
 
+    setState((s) => ({ ...s, error: null }));
     try {
       const result = await api.deleteBranch(currentSession.id, branchId);
       setState((s) => ({ ...s, session: result.session }));

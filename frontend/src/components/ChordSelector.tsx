@@ -1,45 +1,30 @@
-/** Displays 5 chord candidates with loading and error states. */
-
-import type { ChordCandidate as ChordCandidateType } from '../types';
+import type { ChordCandidate as Candidate } from '../types';
 import ChordCandidate from './ChordCandidate';
+import s from './ChordSelector.module.css';
 
-interface ChordSelectorProps {
-  candidates: ChordCandidateType[];
+interface Props {
+  candidates: Candidate[];
   isLoading: boolean;
   error: string | null;
-  onSelect: (candidate: ChordCandidateType) => void;
+  onSelect: (candidate: Candidate) => void;
 }
 
-function ChordSelector({ candidates, isLoading, error, onSelect }: ChordSelectorProps) {
+function ChordSelector({ candidates, isLoading, error, onSelect }: Props) {
   if (error) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#e94560' }}>
-        <p>Error: {error}</p>
-      </div>
-    );
+    return <div className={s.stateError}><p>Error: {error}</p></div>;
   }
 
   if (isLoading) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
-        <p>Generating recommendations...</p>
-      </div>
-    );
+    return <div className={s.stateMuted}><p>Generating recommendations...</p></div>;
   }
 
   if (!candidates || candidates.length === 0) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
-        <p>No candidates available. Select a style to begin.</p>
-      </div>
-    );
+    return <div className={s.stateMuted}><p>No candidates available.</p></div>;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      <h3 style={{ margin: '0 0 8px', color: '#e0e0e0', fontSize: '1rem' }}>
-        Choose the next chord
-      </h3>
+    <div className={s.container}>
+      <h3 className={s.heading}>Choose the next chord</h3>
       {candidates.map((c) => (
         <ChordCandidate key={c.chord_idx} candidate={c} onSelect={onSelect} />
       ))}

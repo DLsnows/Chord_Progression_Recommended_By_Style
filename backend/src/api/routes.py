@@ -213,10 +213,12 @@ def select_chord(
     # Generate this round's candidates (same as what will be shown)
     current_candidates = recommender.recommend(style_group, selected_indices)
 
-    # Record the selection
+    # Record the selection (use JSON-safe built candidates for storage)
     session["style_starting_probs"] = style_group.get("starting_probs", {})
+    built_candidates = _build_candidates(current_candidates, chord_map)
+    serializable_candidates = [c.model_dump() for c in built_candidates]
     result = sessions.select_chord(
-        session_id, branch_id, body.chord_idx, body.chord_name, current_candidates
+        session_id, branch_id, body.chord_idx, body.chord_name, serializable_candidates
     )
 
     # Generate next round's candidates
@@ -292,13 +294,22 @@ def create_branch(
     session_id: str, body: CreateBranchRequest, request: Request
 ) -> dict[str, Any]:
     sessions = _get_sessions(request)
+    recommender = _get_recommender(request)
+    matcher = _get_matcher(request)
+    chord_map = _get_chord_map(request)
+
     try:
         session = sessions.create_branch(session_id, body.fork_position, body.label)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    return {"session": _build_session_state(session)}
+
+    candidates = _generate_candidates(session, matcher, recommender, chord_map)
+    return {
+        "session": _build_session_state(session),
+        "candidates": candidates,
+    }
 
 
 @router.get("/sessions/{session_id}/branches")
@@ -324,11 +335,20 @@ def list_branches(session_id: str, request: Request) -> list[dict[str, Any]]:
 @router.put("/sessions/{session_id}/branches/{branch_id}")
 def switch_branch(session_id: str, branch_id: str, request: Request) -> dict[str, Any]:
     sessions = _get_sessions(request)
+    recommender = _get_recommender(request)
+    matcher = _get_matcher(request)
+    chord_map = _get_chord_map(request)
+
     try:
         session = sessions.switch_branch(session_id, branch_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    return {"session": _build_session_state(session)}
+
+    candidates = _generate_candidates(session, matcher, recommender, chord_map)
+    return {
+        "session": _build_session_state(session),
+        "candidates": candidates,
+    }
 
 
 @router.patch("/sessions/{session_id}/branches/{branch_id}")
@@ -360,6 +380,22 @@ def delete_branch(session_id: str, branch_id: str, request: Request) -> dict[str
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _generate_candidates(
+    session: dict, matcher, recommender, chord_map: dict
+) -> list[dict[str, Any]]:
+    """Generate chord candidates for the active branch of a session."""
+    active = _get_active_branch(session)
+    selected_indices = [s["chord_idx"] for s in (active.get("chords", []) if active else [])]
+
+    style_key = f"{session['style_genre_tag']}|{session['style_decade']}|{session['style_section']}"
+    style_group = matcher.style_index.get(style_key)
+    if style_group is None:
+        return []
+
+    raw = recommender.recommend(style_group, selected_indices)
+    return _build_candidates(raw, chord_map)
+
 
 def _find_branch(session: dict, branch_id: str) -> dict | None:
     for br in session.get("branches", []):

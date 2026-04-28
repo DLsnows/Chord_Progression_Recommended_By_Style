@@ -2,7 +2,20 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:github.com)",
-      "Read(//c/Users/wang/.claude/plugins/**)"
+      "Read(//c/Users/wang/.claude/plugins/**)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(./node_modules/.bin/vite build *)",
+      "Bash(python -m uvicorn src.main:app --host 127.0.0.1 --port 8000)",
+      "Bash(curl -s http://127.0.0.1:8000/api/v1/styles)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/v1/styles/search -H \"Content-Type: application/json\" -d '{\"query\":\"jazz ballad 1960s verse\"}')",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/v1/sessions -H \"Content-Type: application/json\" -d '{\"style_key\":\"jazz|1960|verse\"}')",
+      "Bash(pip install *)",
+      "Bash(where python *)",
+      "Bash(python -m pip install pyarrow)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/v1/sessions -H \"Content-Type: application/json\" -d \"{\\\\\"style_key\\\\\":\\\\\"jazz|1960|verse\\\\\"}\")",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/v1/sessions/e59c74cca2c2/select -H 'Content-Type: application/json' -d '{\"chord_idx\":465,\"chord_name\":\"C\",\"branch_id\":\"e5d94b6bbccd\"}')"
     ]
   }
 }

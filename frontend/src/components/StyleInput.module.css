@@ -1,0 +1,109 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.searchRow {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #16213e;
+  color: #e0e0e0;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #e94560;
+}
+
+.input::placeholder {
+  color: #666;
+}
+
+.searchBtn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #e94560;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.2s, opacity 0.2s;
+  white-space: nowrap;
+}
+
+.searchBtn:hover:not(:disabled) {
+  background: #c73650;
+}
+
+.searchBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e94560;
+  font-size: 0.9rem;
+  padding: 4px 0;
+}
+
+.empty {
+  color: #999;
+  font-size: 0.9rem;
+  padding: 4px 0;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resultsLabel {
+  color: #999;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.matchBtn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #16213e;
+  color: #e0e0e0;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.matchBtn:hover {
+  border-color: #e94560;
+  background: #1a2745;
+}
+
+.matchTag {
+  color: #e94560;
+  font-weight: 600;
+}
+
+.matchSection {
+  color: #999;
+}
+
+.matchMeta {
+  color: #666;
+  font-size: 0.8rem;
+}

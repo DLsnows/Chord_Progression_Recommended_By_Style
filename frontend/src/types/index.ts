@@ -141,6 +141,7 @@ export interface RenameBranchRequest {
 
 export interface BranchActionResponse {
   session: SessionState;
+  candidates: ChordCandidate[];
 }
 
 // ---------------------------------------------------------------------------

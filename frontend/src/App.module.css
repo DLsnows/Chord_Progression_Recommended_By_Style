@@ -5,6 +5,9 @@
 }
 
 .header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
   padding: 1rem 2rem;
   background: #16213e;
   border-bottom: 1px solid #0f3460;
@@ -16,8 +19,39 @@
   color: #e94560;
 }
 
+.styleMeta {
+  color: #999;
+  font-size: 0.85rem;
+}
+
 .main {
   max-width: 960px;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+
+.doneSection {
+  margin-bottom: 1.5rem;
+}
+
+.doneHeading {
+  color: #e94560;
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.restartBtn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: #e94560;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.restartBtn:hover {
+  background: #c73650;
 }

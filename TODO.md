@@ -34,15 +34,50 @@
 - [x] 5.5 实现 useRecommendation hook（状态机 + 会话管理）
 
 ## Phase 6: 前端UI
-- [x] 6.1 实现 StyleInput（文本输入 + 匹配结果显示/选择）
-- [x] 6.2 实现 ChordCandidate（和弦卡片 + 钢琴卷帘缩略图）
-- [x] 6.3 实现 ChordSelector（5候选行 + 加载/错误状态）
-- [x] 6.4 实现 SequenceDisplay（已选序列 + 撤销/完成按钮）
-- [x] 6.5 实现 BranchNav.tsx（分支标签切换 + 从N位置分叉 + 重命名/删除）
-- [x] 6.6 组装 App.tsx（状态机编排 + 布局）
+- [x] 6.1 实现 StyleInput（文本输入 + 匹配结果显示/选择 + CSS Module + hover状态）
+- [x] 6.2 实现 ChordCandidate（和弦卡片 + 钢琴卷帘缩略图 + CSS Module + hover动画）
+- [x] 6.3 实现 ChordSelector（5候选行 + 加载/错误/空态 + CSS Module）
+- [x] 6.4 实现 SequenceDisplay（已选序列 + 撤销/完成按钮 + readonly模式 + CSS Module）
+- [x] 6.5 实现 BranchNav.tsx（分支标签切换 + 从N位置分叉 + 重命名/删除 + CSS Module）
+- [x] 6.6 组装 App.tsx（状态机编排 + 布局 + DONE阶段分支对比展示）
+
+## Phase 6.5: Tone.js MIDI 试听
+
+> **目标**: 使用 Tone.js 集成和弦 MIDI 实时试听，用户可点击试听推荐候选和弦、已选序列和弦、以及完整进行播放。
+
+### 架构设计
+- **AudioEngine 单例**: 封装 Tone.js PolySynth，提供 `playChord()` / `playProgression()` / `stop()` 方法
+- **波形选择**: triangle（三角波）— 柔和音色适合和弦播放，attack=0.02s 避免咔哒声
+- **初始化策略**: 懒初始化，首次用户点击时调用 `Tone.start()` 解决浏览器自动播放限制
+- **进度播放**: 使用 `Tone.Transport` 序列化调度，每和弦持续 2 拍，tempo 默认 100 BPM
+- **视觉反馈**: 当前播放/悬停中的和弦高亮（CSS transition + active 状态）
+- **音量**: 默认 -10dB，可通过音量滑块调节
+
+### 组件改造清单
+- ChordCandidate: 添加小扬声器图标按钮（hover 时显示），点击试听单个和弦
+- SequenceDisplay: 添加 "Play All" 按钮播放完整进行；每个和弦芯片添加播放按钮
+- 所有播放按钮统一使用 Unicode 字符（♪ 播放, ■ 停止），无需额外图标库
+
+### 文件变更
+| 文件 | 操作 |
+|------|------|
+| `frontend/package.json` | `npm install tone` |
+| `frontend/src/utils/audioEngine.ts` | **新建** — AudioEngine 单例 |
+| `frontend/src/components/ChordCandidate.tsx` | 添加试听按钮 + 播放状态 |
+| `frontend/src/components/ChordCandidate.module.css` | 试听按钮样式 |
+| `frontend/src/components/SequenceDisplay.tsx` | Play All + 单和弦播放 |
+| `frontend/src/components/SequenceDisplay.module.css` | 播放控制样式 |
+
+- [x] 6.5.1 安装 Tone.js 依赖
+- [x] 6.5.2 创建 audioEngine.ts（AudioEngine 单例 + PolySynth 封装）
+- [x] 6.5.3 ChordCandidate 添加试听播放按钮
+- [x] 6.5.4 SequenceDisplay 添加 "Play All" 完整进行播放
+- [x] 6.5.5 SequenceDisplay 每个和弦芯片添加单和弦播放
+- [x] 6.5.6 添加 CSS 播放按钮/播放中动画样式
+- [x] 6.5.7 TypeScript 类型检查 + Vite 构建验证
 
 ## Phase 7: 收尾打磨
-- [ ] 7.1 添加加载态/空态/错误边界
-- [ ] 7.2 端到端集成联调（前后端对接）
-- [ ] 7.3 编写 README.md（搭建说明 + 使用指南）
-- [ ] 7.4 (可选) Tone.js 集成 MIDI 试听
+- [x] 7.1 添加加载态/空态/错误边界
+- [x] 7.2 端到端集成联调（前后端对接）
+- [x] 7.3 编写 README.md（搭建说明 + 使用指南）
+- [x] 7.4 Tone.js 集成 MIDI 试听（已在 Phase 6.5 完成）

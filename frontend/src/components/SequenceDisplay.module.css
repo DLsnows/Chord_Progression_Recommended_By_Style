@@ -1,0 +1,152 @@
+.wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.heading {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 1rem;
+  flex: 1;
+}
+
+.undoBtn {
+  padding: 6px 16px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #16213e;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.undoBtn:hover:not(:disabled) {
+  border-color: #999;
+  background: #1a2745;
+}
+
+.undoBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.finishBtn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #e94560;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.finishBtn:hover {
+  background: #c73650;
+}
+
+.playAllBtn {
+  padding: 6px 14px;
+  border: 1px solid #e94560;
+  border-radius: 4px;
+  background: transparent;
+  color: #e94560;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.playAllBtn:hover {
+  background: #e94560;
+  color: #fff;
+}
+
+.playAllBtnActive {
+  padding: 6px 14px;
+  border: 1px solid #e94560;
+  border-radius: 4px;
+  background: #e94560;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.playAllBtnActive:hover {
+  background: #c73650;
+}
+
+.chordList {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chordChip {
+  padding: 8px 10px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #16213e;
+  text-align: center;
+  min-width: 100px;
+}
+
+.chipName {
+  font-weight: 600;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+
+.chipPos {
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.chipPlayBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #555;
+  border-radius: 50%;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.chipPlayBtn:hover {
+  border-color: #e94560;
+  color: #e94560;
+}
+
+.chipPlayBtnActive {
+  background: #e94560;
+  border-color: #e94560;
+  color: #fff;
+  animation: pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from { box-shadow: 0 0 2px #e94560; }
+  to { box-shadow: 0 0 10px #e94560; }
+}
+
+.empty {
+  padding: 1rem;
+  color: #999;
+  text-align: center;
+}

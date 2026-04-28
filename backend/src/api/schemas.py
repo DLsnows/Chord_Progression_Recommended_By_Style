@@ -161,6 +161,7 @@ class CreateSessionResponse(BaseModel):
 
 class CreateBranchResponse(BaseModel):
     session: SessionState
+    candidates: list[ChordCandidate] = []
 
 
 # ---------------------------------------------------------------------------
