@@ -1,34 +1,34 @@
-# Chord Progression Recommender
+# 和弦进行推荐系统
 
-Interactive chord progression recommendation based on musical style. Enter a natural language query like "jazz ballad 1960s verse" — the system recommends chords one at a time using a weighted n-gram model trained on ~680,000 compositions.
+基于音乐风格的和弦进行交互式推荐。输入自然语言描述（如"爵士 抒情 1960年代 主歌"），系统使用在约68万首乐曲上训练的加权n-gram模型逐次推荐下一个和弦。
 
-## Architecture
+## 技术架构
 
-- **Backend**: Python / FastAPI / Pydantic v2 / scipy sparse matrices / SQLite
-- **Frontend**: React 19 / TypeScript / Vite / SVG piano roll / Tone.js MIDI playback
-- **Data**: [Chordonomicon](https://huggingface.co/datasets/ailsntua/Chordonomicon) via HuggingFace — 57,523 style groups, 95M chord bigrams
+- **后端**：Python / FastAPI / Pydantic v2 / scipy稀疏矩阵 / SQLite
+- **前端**：React 19 / TypeScript / Vite / SVG钢琴卷帘 / Tone.js MIDI播放
+- **数据**：[Chordonomicon](https://huggingface.co/datasets/ailsntua/Chordonomicon) — 57,523个风格分组，9500万和弦二元组
 
-## Quick Start
+## 快速开始
 
-### 一键启动 (推荐)
+### 一键启动（推荐）
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File start.ps1
 ```
 
-脚本会自动启动后端 (port 8000) 和前端 (port 5173)，按任意键停止。
+脚本自动启动后端（端口 8000）和前端（端口 5173），按任意键停止。
 
 ### 首次搭建
 
-首次使用需先构建数据集（约 90 分钟，只需运行一次）：
+首次使用需先构建数据集（约90分钟，只需运行一次）：
 
 ```bash
 cd backend
-.\.venv\Scripts\python.exe scripts\download_data.py   # 下载和弦映射表 + 数据集
-.\.venv\Scripts\python.exe scripts\build_matrices.py  # 构建转移矩阵 (587 MB)
+.\.venv\Scripts\python.exe scripts\download_data.py   # 下载和弦映射表与数据集
+.\.venv\Scripts\python.exe scripts\build_matrices.py  # 构建转移矩阵（约587 MB）
 ```
 
-前端依赖：
+前端依赖安装：
 
 ```bash
 cd frontend
@@ -38,69 +38,96 @@ npm install
 ### 手动启动
 
 ```bash
-# 终端 1 — 后端
+# 终端1 — 后端
 cd backend
 .\.venv\Scripts\python.exe -m uvicorn src.main:app --host 127.0.0.1 --port 8000
 
-# 终端 2 — 前端
+# 终端2 — 前端
 cd frontend
 npm run dev
 ```
 
-## Usage
+## 使用指南
 
-1. Open http://localhost:5173 with the backend running
-2. Type a style query: `jazz ballad 1960s verse`, `rock 1970s chorus`, etc.
-3. Pick a matching style from the ranked results
-4. Click a chord card to select it, or click the ♪ button to preview its sound
-5. Continue selecting chords to build your progression
-6. Use **Play All** to hear the full sequence, **Undo** to go back, **Fork** to try alternate paths
-7. Adjust the **Musicality** slider to control the trade-off between standard triads and complex chords
-8. Type a custom chord name (e.g., `Cmaj7`, `Amin`) to add chords not in the AI recommendations
-9. Click **Finish** to compare all branches side by side
-10. Access **History** to resume or delete past sessions
+1. 确保后端运行中，打开 http://localhost:5173
+2. 输入风格查询，例如：`爵士 抒情 1960 主歌`、`摇滚 1970 副歌`
+3. 从排名结果中选择匹配的风格
+4. 点击和弦卡片选中，或点击 ♪ 按钮试听
+5. 继续选择和弦构建你的和声进行
+6. 使用 **Play All** 播放完整序列，**Undo** 回退，**Fork** 创建分支
+7. 调整 **音乐性** 滑块（0.0–1.0）控制大小三和弦与复杂和弦的平衡
+8. 在自定义输入框中输入和弦名称（如 `Cmaj7`、`Amin`）添加AI推荐之外的和弦
+9. 点击 **Finish** 对比所有分支
+10. 通过 **History** 恢复或删除历史会话
 
-## API Overview
+## API 概览
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/styles/search` | NL style query → ranked matches |
-| GET | `/api/v1/styles` | All available genre/decade/section dimensions |
-| POST | `/api/v1/sessions` | Start a recommendation session |
-| GET | `/api/v1/sessions` | List recent sessions |
-| GET | `/api/v1/sessions/{id}` | Full session state with all branches |
-| DELETE | `/api/v1/sessions/{id}` | Delete session |
-| POST | `/api/v1/sessions/{id}/select` | Pick a chord → get next 5 candidates |
-| POST | `/api/v1/sessions/{id}/undo` | Undo last pick |
-| POST | `/api/v1/sessions/{id}/branches` | Fork a new branch at position N |
-| PUT | `/api/v1/sessions/{id}/branches/{bid}` | Switch active branch |
-| GET | `/api/v1/chords/{name}` | Chord detail with chord_idx (MIDI notes, intervals, vector) |
-| POST | `/api/v1/sessions/{id}/resume` | Resume past session with current candidates |
-| PATCH | `/api/v1/sessions/{id}/musicality` | Update musicality bias (0.0–1.0) and regenerate candidates |
+| 方法 | 端点 | 说明 |
+|------|------|------|
+| POST | `/api/v1/styles/search` | 自然语言风格查询 → 匹配排名 |
+| GET | `/api/v1/styles` | 获取所有可用流派/年代/段落维度 |
+| POST | `/api/v1/sessions` | 创建推荐会话 |
+| GET | `/api/v1/sessions` | 列出最近会话 |
+| GET | `/api/v1/sessions/{id}` | 获取完整会话状态（含所有分支） |
+| DELETE | `/api/v1/sessions/{id}` | 删除会话 |
+| POST | `/api/v1/sessions/{id}/select` | 选择一个和弦 → 返回下5个候选 |
+| POST | `/api/v1/sessions/{id}/undo` | 撤销上次选择 |
+| POST | `/api/v1/sessions/{id}/branches` | 在指定位置创建新分支 |
+| PUT | `/api/v1/sessions/{id}/branches/{bid}` | 切换到指定分支 |
+| GET | `/api/v1/chords/{name}` | 查询和弦详情（MIDI音符、音程、向量） |
+| POST | `/api/v1/sessions/{id}/resume` | 恢复历史会话 |
+| PATCH | `/api/v1/sessions/{id}/musicality` | 更新音乐性参数并重新生成候选 |
 
-## Key Design Decisions
+## 核心设计
 
-- **Dual-factor recommendation** (alpha=0.85): chord transition probability + independent root-motion probability
-- **Transposition augmentation**: 12-key augmentation with Gaussian distance weighting (sigma=3.85, range 1.0–0.30)
-- **Three-tier style fallback**: exact tag match → same genre/section (all decades) → global
-- **Sparse transition matrices**: scipy CSR via parquet (587 MB for 57K groups vs. multi-GB dense)
-- **SQLite session persistence**: multi-branch selection trees for A/B progression comparison
+- **双因素推荐**（α=0.85）：和弦转移概率 + 独立根音运动概率，指数时间衰减（λ=0.92，前8个和弦缓慢递减）
+- **移调增强**：12个调的增强，使用高斯距离加权（σ=3.85，权重范围1.0–0.30）
+- **三级风格回退**：精确标签匹配 → 同流派/段落（所有年代）→ 全局回退
+- **稀疏转移矩阵**：scipy CSR格式，Parquet存储（57K分组约587 MB，远小于密集矩阵的GB级别）
+- **SQLite会话持久化**：支持多分支选择树，可进行A/B和声进行的对比
+- **音乐性参数**：用户可调滑块（0.0–1.0），惩罚大小三和弦、增强复杂和弦（七和弦、九和弦、减和弦、增和弦、挂留和弦等）
 
-## Recent Changes (April 2026)
+## 更新日志
 
-### Custom Chord Input
-- Users can type any chord name from the database as a 6th option alongside AI recommendations
-- Automatic flat→sharp conversion (Db→Cs, Eb→Ds, etc.) and quality alias normalization
-- Lookup validates against the chord vocabulary before allowing selection
+### 2026年4月 — 界面黑绿重设计
 
-### Expanded Initial Options
-- First chord selection now shows up to **50 candidates** (was 5), giving more key variety
-- Fallback chord list expanded from 9 to 33 chords covering all 12 roots
+- 整体配色从深蓝+粉红改为纯黑+绿色（`#4ade80`）现代风格
+- 背景采用黑色（`#0a0a0a`）与深灰（`#151515`）层次体系
+- 错误/危险操作保留红色（`#ef4444`）以保持可识别性
+- 绿色按钮上的文字改为黑色以实现高对比度
+- 钢琴卷帘活动音符改为绿色，根音使用亮绿色
+- 修复页面四周白色边框问题（添加全局CSS重置）
 
-### Musicality Parameter
-- Adjustable slider (0.0–1.0) controlling the trade-off between major/minor triads and complex chords
-- Higher values penalize basic triads and boost extended chords (7ths, 9ths, dim, aug, sus)
-- Session-persisted — musicality setting is saved and restored when resuming a session
+### 2026年4月 — 自定义和弦预览修复
 
-### Bug Fix: Multi-Word Genre Search
-- Style queries with multi-word genre tags (e.g., "cool jazz", "alternative metal") now match correctly via n-gram tokenization
+- 自定义和弦验证预览区域新增钢琴卷帘图和试听按钮
+- 修复自定义和弦被选中后在序列中无法显示钢琴卷帘和无声的问题
+- 修复涉及前后端：确保被选和弦始终包含在已存储的候选列表中
+
+### 2026年4月 — 自定义和弦输入（第6选项）
+
+- 用户可在任意位置输入数据库中的任意和弦名称作为第6个选项
+- 自动进行降号→升号转换（Db→Cs、Eb→Ds等）和质量别名规范化
+- 后端在存储选中记录前验证和弦是否存在于词汇表中
+- 前端通过 `/api/v1/chords/{name}` 接口实时校验
+
+### 2026年4月 — 首次候选扩展至50个
+
+- 创建会话时首次选择和弦现在最多显示50个候选（原为5个）
+- 后续选择和恢复会话仍保持5个候选
+- 增加了首和弦的调性多样性（不再局限于C大调/G大调）
+- 回退和弦列表从9个扩展到33个，覆盖全部12个根音
+
+### 2026年4月 — 音乐性参数
+
+- 新增可调滑块（0.0–1.0），控制大小三和弦与复杂和弦的平衡
+- 值越高越抑制基础三和弦（权重降至原来的10%），提升扩展和弦（权重提升50%）
+- 会话级持久化——恢复会话时自动还原音乐性设置
+- 调整后立即通过 `PATCH /api/v1/sessions/{id}/musicality` 重新生成候选
+
+### 2026年4月 — 修复多处问题
+
+- 修复多词流派标签搜索不生效的问题（如"酷爵士"、"另类金属"），通过n-gram分词解决
+- 修复G以上和弦（G、Gs、A、As、B）预览音高过高问题：根音音高类≥7时降低一个八度
+- 修复音乐性滑块首次选择候选数回退问题：`_generate_candidates()` 在空序列时正确使用 `TOP_K_FIRST`
+- 修复音乐性滑块显示"error not found"：后端未重启导致缺少新路由

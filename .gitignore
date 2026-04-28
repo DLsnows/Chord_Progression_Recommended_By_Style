@@ -1,0 +1,48 @@
+# Claude AI 本地设置
+.claude/
+
+# 依赖
+node_modules/
+frontend/node_modules/
+
+# Python 虚拟环境
+backend/.venv/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 数据库 (本地会话数据)
+backend/data/sessions.db
+*.db-journal
+*.db-wal
+
+# 下载/构建的数据文件
+backend/data/raw/chords_mapping.csv
+backend/data/style_index.json
+backend/data/transitions/
+
+# 前端构建产物
+frontend/dist/
+frontend/dist-ssr/
+
+# 日志
+*.log
+npm-debug.log*
