@@ -1,5 +1,6 @@
 # Claude AI 本地设置
 .claude/
+TODO.md
 
 # 依赖
 node_modules/
