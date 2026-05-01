@@ -1,0 +1,12 @@
+# Core dependencies for Chord Progression Recommender
+# Install: pip install -r requirements.txt
+
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.29,<1.0
+pydantic>=2.7,<3.0
+pandas>=2.2,<4.0
+numpy>=1.26,<3.0
+scipy>=1.13,<2.0
+pyarrow>=16.0,<25.0
+datasets>=2.19,<5.0
+httpx>=0.27,<1.0

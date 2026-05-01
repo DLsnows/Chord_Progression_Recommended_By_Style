@@ -20,11 +20,13 @@ import type {
 const BASE_URL = 'http://localhost:8000/api/v1';
 
 class ApiError extends Error {
+  status: number;
   constructor(
-    public status: number,
+    status: number,
     message: string,
   ) {
     super(message);
+    this.status = status;
     this.name = 'ApiError';
   }
 }

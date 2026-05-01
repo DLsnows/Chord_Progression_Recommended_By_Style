@@ -44,9 +44,6 @@ export function useRecommendation(): { state: UIState; actions: Actions } {
   const activeBranch = (s: SessionState | null) =>
     s?.branches?.find((b) => b.id === s.active_branch_id) ?? null;
 
-  const branchChords = (s: SessionState | null): ChordSelectionItem[] =>
-    activeBranch(s)?.chords ?? [];
-
   // ---- style search ----
 
   const submitStyle = useCallback(async (query: string) => {

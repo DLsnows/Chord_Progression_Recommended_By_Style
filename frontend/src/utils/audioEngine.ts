@@ -8,13 +8,9 @@ class AudioEngine {
   async init(): Promise<void> {
     if (this._ready) return;
     await Tone.start();
-    this.synth = new Tone.PolySynth(Tone.Synth, {
-      maxPolyphony: 12,
-      voice: Tone.Synth,
-      options: {
-        oscillator: { type: 'triangle' as const },
-        envelope: { attack: 0.02, decay: 0.15, sustain: 0.3, release: 0.6 },
-      },
+    this.synth = new Tone.PolySynth(Tone.Synth).set({
+      oscillator: { type: 'triangle' as const },
+      envelope: { attack: 0.02, decay: 0.15, sustain: 0.3, release: 0.6 },
     }).toDestination();
     this.synth.volume.value = -10;
     this._ready = true;

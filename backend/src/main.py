@@ -5,6 +5,8 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from .api.routes import router
 from .config import SESSION_DB_PATH, DATA_DIR, TRANSITIONS_DIR
@@ -53,7 +55,7 @@ async def lifespan(app: FastAPI):
     app.state.session_manager = session_manager
 
     print("=" * 50)
-    print("Ready. Visit http://localhost:8000/docs for Swagger UI")
+    print("Ready. Visit http://localhost:8000 to open the app")
 
     yield  # app runs here
 
@@ -82,7 +84,31 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(router)
+
+    # Serve frontend static files in production (when dist/ exists)
+    _serve_frontend(app)
+
     return app
+
+
+def _serve_frontend(app: FastAPI) -> None:
+    """Mount frontend static files if the dist directory exists."""
+    frontend_dist = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+    if not frontend_dist.exists():
+        return
+
+    assets_dir = frontend_dist / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    @app.get("/", include_in_schema=False)
+    async def root():
+        return FileResponse(frontend_dist / "index.html")
+
+    @app.get("/favicon.svg", include_in_schema=False)
+    async def favicon():
+        path = frontend_dist / "favicon.svg"
+        return FileResponse(path) if path.exists() else FileResponse(frontend_dist / "index.html")
 
 
 app = create_app()

@@ -20,10 +20,15 @@ powershell -ExecutionPolicy Bypass -File start.ps1
 
 ### 首次搭建
 
-首次使用需先构建数据集（约90分钟，只需运行一次）：
+**环境要求**：Python 3.11+
 
 ```bash
+# 1. 创建虚拟环境并安装依赖
 cd backend
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# 2. 下载并构建数据集（约90分钟，只需运行一次）
 .\.venv\Scripts\python.exe scripts\download_data.py   # 下载和弦映射表与数据集
 .\.venv\Scripts\python.exe scripts\build_matrices.py  # 构建转移矩阵（约587 MB）
 ```
